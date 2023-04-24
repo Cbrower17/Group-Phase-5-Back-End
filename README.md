@@ -42,7 +42,7 @@ Run the following commands:
 Next.js:
 cd into client
 Run the following Commands:
-    ???
+    npm install
 
 Congrats, you are now configured and ready to run this program!
 
