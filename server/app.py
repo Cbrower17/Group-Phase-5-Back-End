@@ -21,7 +21,7 @@ class Home(Resource):
         '''
         response = make_response(syntax_dict, 200)
         return response
-api.add_resource(Home, '/')
+api.add_resource(Home, '/', endpoint='home')
 
     ###########################################
     ##            Logging in/Out             ##
@@ -30,7 +30,7 @@ api.add_resource(Home, '/')
 
 # @app.before_request                 ## Commented out because it keeps giving me problems
 # def check_if_logged_in():
-#     access_list = ['clear', 'signup', 'check_session', 'login', ]
+#     access_list = ['home', 'clear', 'signup', 'check_session', 'login', ]
 #     if (request.endpoint) not in access_list and (not session.get('user_id')):   
 #         return {'error': 'Unauthorized'}, 401
 
@@ -86,7 +86,7 @@ class Logout(Resource):
             session['user_id'] = None
             return {'message': '204: No Content'}, 204
         return {'error': '401 Unauthorized'}, 401
-api.add_resource(Logout, '/logout')
+api.add_resource(Logout, '/logout', endpoint='logout')
 
     ###########################################
     ##        GET, POST, PATCH, DELETE       ##
@@ -126,7 +126,7 @@ class Users(Resource):
         response = make_response(jsonify(user_dict), 201) 
         return response 
     
-api.add_resource(Users, '/users')
+api.add_resource(Users, '/users', endpoint='user')
 
 class UserById(Resource):
     def get(self, id):
@@ -162,7 +162,7 @@ class UserById(Resource):
             return make_response(user_dict, 200)
         return make_response(jsonify({"error": "User Record not found"}), 404)
 
-api.add_resource(UserById, '/users/<int:id>')
+api.add_resource(UserById, '/users/<int:id>', endpoint='userbyid')
 
 #############
 ## PROJECT ##
@@ -199,7 +199,7 @@ class Projects(Resource):
         response = make_response(jsonify(project_dict), 201) 
         return response 
 
-api.add_resource(Projects, '/projects')
+api.add_resource(Projects, '/projects', endpoint='project')
 
 class ProjectById(Resource):
     def get(self, id): 
@@ -235,7 +235,7 @@ class ProjectById(Resource):
             return make_response(project_dict, 200)
         return make_response(jsonify({"error": "Project Record not found"}), 404)
 
-api.add_resource(ProjectById, '/projects/<int:id>')
+api.add_resource(ProjectById, '/projects/<int:id>', endpoint='projectbyid')
 
 ##########
 ## FILE ##
@@ -272,7 +272,7 @@ class Files(Resource):
         response = make_response(jsonify(file_dict), 201) 
         return response 
 
-api.add_resource(Files, '/files')
+api.add_resource(Files, '/files', endpoint='file')
 
 class FileById(Resource):
     def get(self, id):
@@ -308,7 +308,7 @@ class FileById(Resource):
             return make_response(file_dict, 200)
         return make_response(jsonify({"error": "File Record not found"}), 404)
 
-api.add_resource(FileById, '/files/<int:id>')
+api.add_resource(FileById, '/files/<int:id>', endpoint='filebyid')
 
 ##########
 ## TASK ##
@@ -346,7 +346,7 @@ class Tasks(Resource):
         response = make_response(jsonify(task_dict), 201) 
         return response 
 
-api.add_resource(Tasks, '/tasks')
+api.add_resource(Tasks, '/tasks', endpoint='task')
 
 class TaskById(Resource):
     def get(self, id):
@@ -382,7 +382,7 @@ class TaskById(Resource):
             return make_response(task_dict, 200)
         return make_response(jsonify({"error": "Task Record not found"}), 404)
 
-api.add_resource(TaskById, '/tasks/<int:id>')
+api.add_resource(TaskById, '/tasks/<int:id>', endpoint='taskbyid')
 
 ##############
 ## CALENDAR ##
@@ -417,7 +417,7 @@ class Calendar(Resource):
         response = make_response(jsonify(calendar_dict), 201) 
         return response 
 
-api.add_resource(Calendar, '/calendars')
+api.add_resource(Calendar, '/calendars', endpoint='calendar')
 
 class CalendarById(Resource):
     def get(self, id):
@@ -453,7 +453,7 @@ class CalendarById(Resource):
             return make_response(calendar_dict, 200)
         return make_response(jsonify({"error": "Calendar Record not found"}), 404)
 
-api.add_resource(CalendarById, '/calendars/<int:id>')
+api.add_resource(CalendarById, '/calendars/<int:id>', endpoint='calendarbyid')
 
 ##########
 ## TEAM ##
@@ -488,7 +488,7 @@ class Teams(Resource):
         response = make_response(jsonify(team_dict), 201) 
         return response 
 
-api.add_resource(Teams, '/teams')
+api.add_resource(Teams, '/teams', endpoint='team')
 
 class TeamById(Resource):
     def get(self, id): 
@@ -524,7 +524,7 @@ class TeamById(Resource):
             return make_response(team_dict, 200)
         return make_response(jsonify({"error": "Team Record not found"}), 404)
 
-api.add_resource(TeamById, '/teams/<int:id>')
+api.add_resource(TeamById, '/teams/<int:id>', endpoint='teambyid')
 
 ##################
 ## Chat_Message ##
@@ -558,7 +558,7 @@ class Chat_Messages(Resource):
         response = make_response(jsonify(chat_message_dict), 201) 
         return response 
 
-api.add_resource(Chat_Messages, '/chat_messages')
+api.add_resource(Chat_Messages, '/chat_messages', endpoint='chat_message')
 
 class Chat_MessageById(Resource):
     def get(self, id):
@@ -594,7 +594,7 @@ class Chat_MessageById(Resource):
             return make_response(chat_message_dict, 200)
         return make_response(jsonify({"error": "Chat_Message Record not found"}), 404)
 
-api.add_resource(Chat_MessageById, '/chat_messages/<int:id>')
+api.add_resource(Chat_MessageById, '/chat_messages/<int:id>', endpoint='chat_messagebyid')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
