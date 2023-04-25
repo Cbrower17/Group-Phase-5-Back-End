@@ -7,7 +7,7 @@ from config import bcrypt,db
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-tasks.user', '-files.user', '-teams.user', 'calendars.user', 'chat_messages.user',)
+    serialize_rules = ('-tasks.user', '-files.user', '-teams.user', '-calendars.user', '-chat_messages.user',)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
@@ -336,7 +336,7 @@ class Team(db.Model, SerializerMixin):
 class Calendar(db.Model, SerializerMixin):
     __tablename__ = 'calendars'
 
-    serialize_rules = ('-user.calendars', 'created_at', '-updated_at',)
+    serialize_rules = ('-user.calendars', '-created_at', '-updated_at',)
 
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String, nullable=False)
