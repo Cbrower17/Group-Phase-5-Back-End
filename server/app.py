@@ -388,7 +388,7 @@ api.add_resource(TaskById, '/tasks/<int:id>', endpoint='taskbyid')
 ## CALENDAR ##
 ##############
 
-class Calendar(Resource):
+class Calendars(Resource):
     def get(self):
         calendar_dict_list = []
         for calendar in Calendar.query.all():
@@ -417,7 +417,7 @@ class Calendar(Resource):
         response = make_response(jsonify(calendar_dict), 201) 
         return response 
 
-api.add_resource(Calendar, '/calendars', endpoint='calendar')
+api.add_resource(Calendars, '/calendars', endpoint='calendar')
 
 class CalendarById(Resource):
     def get(self, id):

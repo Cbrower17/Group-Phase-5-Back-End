@@ -401,8 +401,6 @@ class Chat_Message(db.Model, SerializerMixin):
     sender = db.relationship('User', foreign_keys=[sender_user_id], back_populates='sent_messages')
     receiver = db.relationship('User', foreign_keys=[receiver_user_id], back_populates='received_messages')
 
-
-    
     @validates('message_text')
     def validate_event_description_length(self, key, message_text):
         if not message_text:
