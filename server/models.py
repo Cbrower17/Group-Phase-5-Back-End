@@ -4,6 +4,24 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from config import bcrypt,db
 
+# class SerializerMixin:
+#     def to_dict(self, max_depth=1, current_depth=0):
+#         if current_depth > max_depth:
+#             return None
+#         result = {}
+#         for key in self.__mapper__.c.keys():
+#             result[key] = getattr(self, key)
+#         for key, relation in self.__mapper__.relationships.items():
+#             related_obj = getattr(self, key)
+#             if related_obj is not None:
+#                 if relation.direction.name == 'ONETOMANY':
+#                     result[key] = [obj.to_dict(max_depth=max_depth, current_depth=current_depth + 1) for obj in related_obj]
+#                 elif relation.direction.name == 'MANYTOONE':
+#                     result[key] = related_obj.to_dict(max_depth=max_depth, current_depth=current_depth + 1)
+#         return result
+
+###############################################################
+
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
@@ -22,8 +40,8 @@ class User(db.Model, SerializerMixin):
     files = db.relationship('File', backref='user', cascade="all, delete, delete-orphan")
     teams = db.relationship('Team', backref='user', cascade="all, delete, delete-orphan")
     calendars = db.relationship('Calendar', backref='user', cascade="all, delete, delete-orphan")
-    sent_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.sender_user_id', cascade="all, delete, delete-orphan", overlaps='received_messages')
-    received_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.receiver_user_id', cascade="all, delete, delete-orphan", overlaps='sent_messages')
+    sent_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.sender_user_id', cascade="all, delete, delete-orphan")
+    received_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.receiver_user_id', cascade="all, delete, delete-orphan")
 
     projects = association_proxy('tasks', 'project')
     projects = association_proxy('files', 'project')
@@ -398,8 +416,6 @@ class Chat_Message(db.Model, SerializerMixin):
 
     sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     receiver_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    sender = db.relationship('User', foreign_keys=[sender_user_id], back_populates='sent_messages')
-    receiver = db.relationship('User', foreign_keys=[receiver_user_id], back_populates='received_messages')
 
     @validates('message_text')
     def validate_event_description_length(self, key, message_text):
