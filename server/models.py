@@ -25,6 +25,7 @@ from config import bcrypt,db
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
+    serialize_only = ('id', 'username', 'email', '_password_hash', 'date_created', 'last_login', 'is_active', 'is_admin')
     serialize_rules = ('-tasks.user', '-files.user', '-teams.user', '-calendars.user', '-sent_messages.user','-recieved_messages.user',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -91,6 +92,7 @@ class User(db.Model, SerializerMixin):
 class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
 
+    serialize_only = ('id', 'title', 'description', 'status', 'start_date', 'end_date')
     serialize_rules = ('-tasks.project', '-files.project', '-teams.project', '-created_at', '-updated_at',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -164,6 +166,7 @@ class Project(db.Model, SerializerMixin):
 class Task(db.Model, SerializerMixin): 
     __tablename__ = 'tasks'
 
+    serialize_only = ('id', 'title', 'description', 'status', 'due_date', 'priority')
     serialize_rules = ('-user.tasks', '-project.tasks', '-created_at', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -245,6 +248,7 @@ class Task(db.Model, SerializerMixin):
 class File(db.Model, SerializerMixin):
     __tablename__ = 'files'
 
+    serialize_only = ('id', 'filename', 'description', 'file_type', 'size')
     serialize_rules = ('-user.files', '-project.files', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -319,6 +323,7 @@ class File(db.Model, SerializerMixin):
 class Team(db.Model, SerializerMixin):
     __tablename__ = 'teams'
 
+    serialize_only = ('id', 'name', 'description')
     serialize_rules = ('-user.teams', '-project.teams', '-updated_at','-user',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -368,6 +373,7 @@ class Team(db.Model, SerializerMixin):
 class Calendar(db.Model, SerializerMixin):
     __tablename__ = 'calendars'
 
+    serialize_only = ('id', 'event_name', 'event_description', 'event_date')
     serialize_rules = ('-user.calendars', '-created_at', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
@@ -422,6 +428,7 @@ class Calendar(db.Model, SerializerMixin):
 class Chat_Message(db.Model, SerializerMixin):
     __tablename__ = 'chat_messages'
 
+    serialize_only = ('id', 'message_text', 'message_date', 'sender_user_id', 'receiver_user_id')
     serialize_rules = ('-user.chat_messages', '-updated_at',)
     ## Potentially alternate version if needed ## 
         ## Would also need to switch to the alternate sent_messages and received_messages up in User!
