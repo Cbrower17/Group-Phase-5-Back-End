@@ -98,15 +98,18 @@ api.add_resource(Logout, '/logout', endpoint='logout')
 
 class Users(Resource):          
     def get(self):
-        user_dict_list = []
-        for user in User.query.all(): 
-            user_dict_list.append(user.to_dict())
-        if user_dict_list != []:
-            response = make_response(jsonify(user_dict_list), 200)
-            return response
-        else:
-            return_obj = {"valid": False, "Reason": "Can't query User data"}                 
-            return make_response(jsonify(return_obj),500)  
+        try:
+            user_dict_list = []
+            for user in User.query.all(): 
+                user_dict_list.append(user.to_dict())
+            if user_dict_list != []:
+                response = make_response(jsonify(user_dict_list), 200)
+                return response
+            else:
+                return_obj = {"valid": False, "Reason": "Can't query User data"}                 
+                return make_response(jsonify(return_obj),500)  
+        except Exception as e:
+            return make_response(jsonify({"errors": [e.__str__()]}), 422)
 
     def post(self):
         data=request.get_json()
@@ -130,37 +133,46 @@ api.add_resource(Users, '/users', endpoint='user')
 
 class UserById(Resource):
     def get(self, id):
-        user = User.query.filter(User.id == id).first()
-        if user:
-            user_dict = user.to_dict()
-            response = make_response(jsonify(user_dict, 200))
-            return response
-        return make_response(jsonify({"error": "User Record not found"}), 404)
+        try:
+            user = User.query.filter(User.id == id).first()
+            if user:
+                user_dict = user.to_dict()
+                response = make_response(jsonify(user_dict, 200))
+                return response
+            return make_response(jsonify({"error": "User Record not found"}), 404)
+        except Exception as e:
+            return make_response(jsonify({"errors": [e.__str__()]}), 422)
 
     def patch(self, id):
-        user = User.query.filter(User.id == id).first()
-        if user:
-            data=request.get_json() 
-            try:                                        
-                for attr in data:
-                    setattr(user, attr, data[attr]) 
-                db.session.add(user) 
-                db.session.commit() 
-            except Exception as e:
-                return make_response({"errors": [e.__str__()]}, 422)
-            user_dict = user.to_dict()
-            response = make_response(jsonify(user_dict), 201)
-            return response 
-        return make_response(jsonify({"error": "User Record not found"}), 404)
+        try:
+            user = User.query.filter(User.id == id).first()
+            if user:
+                data=request.get_json() 
+                try:                                        
+                    for attr in data:
+                        setattr(user, attr, data[attr]) 
+                    db.session.add(user) 
+                    db.session.commit() 
+                except Exception as e:
+                    return make_response({"errors": [e.__str__()]}, 422)
+                user_dict = user.to_dict()
+                response = make_response(jsonify(user_dict), 201)
+                return response 
+            return make_response(jsonify({"error": "User Record not found"}), 404)
+        except Exception as e:
+            return make_response(jsonify({"errors": [e.__str__()]}), 422)
 
     def delete(self, id):
-        user = User.query.filter(User.id == id).first()
-        if user:
-            db.session.delete(user)
-            db.session.commit()
-            user_dict = {"message": "User Record successfully deleted"}
-            return make_response(user_dict, 200)
-        return make_response(jsonify({"error": "User Record not found"}), 404)
+        try:
+            user = User.query.filter(User.id == id).first()
+            if user:
+                db.session.delete(user)
+                db.session.commit()
+                user_dict = {"message": "User Record successfully deleted"}
+                return make_response(user_dict, 200)
+            return make_response(jsonify({"error": "User Record not found"}), 404)
+        except Exception as e:
+            return make_response(jsonify({"errors": [e.__str__()]}), 422)
 
 api.add_resource(UserById, '/users/<int:id>', endpoint='userbyid')
 

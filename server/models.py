@@ -25,7 +25,7 @@ from config import bcrypt,db
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-tasks.user', '-files.user', '-teams.user', '-calendars.user', '-chat_messages.user',)
+    serialize_rules = ('-tasks.user', '-files.user', '-teams.user', '-calendars.user', '-sent_messages.user','-recieved_messages.user',)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
@@ -42,6 +42,11 @@ class User(db.Model, SerializerMixin):
     calendars = db.relationship('Calendar', backref='user', cascade="all, delete, delete-orphan")
     sent_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.sender_user_id', cascade="all, delete, delete-orphan")
     received_messages = db.relationship('Chat_Message', foreign_keys='Chat_Message.receiver_user_id', cascade="all, delete, delete-orphan")
+    
+    ## Potentially alternate version if needed ## 
+        ##Would also need to switch to the alternate serialize_rules down in Chat_Message!
+    # sent_messages = db.relationship('Chat_Message', backref='user1', foreign_keys='[Chat_Message.sender_user_id]', cascade="all, delete, delete-orphan")
+    # received_messages = db.relationship('Chat_Message',backref='user2', foreign_keys='[Chat_Message.receiver_user_id]', cascade="all, delete, delete-orphan")
 
     projects = association_proxy('tasks', 'project')
     projects = association_proxy('files', 'project')
@@ -81,6 +86,8 @@ class User(db.Model, SerializerMixin):
     def __repr__(self):
         return f'User ID: {self.id}, Username: {self.username}, Email: {self.email}, Date Created: {self.date_created}, Last Login: {self.last_login}, Is Admin: {self.is_admin}, Is Active: {self.is_active}>'
 
+###############################################################
+
 class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
 
@@ -90,8 +97,8 @@ class Project(db.Model, SerializerMixin):
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, db.CheckConstraint('len(description) <= 250', name='max_project_description_length'))
     status = db.Column(db.String, nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
+    start_date = db.Column(db.String, nullable=False)
+    end_date = db.Column(db.String, nullable=False)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
@@ -102,7 +109,7 @@ class Project(db.Model, SerializerMixin):
     files = db.relationship('File', backref='project', cascade="all, delete, delete-orphan")
     users = association_proxy('tasks', 'user')
     users = association_proxy('files', 'user')
-    
+   
     @validates('title')
     def validate_project_title(self, key, title):
         projects = Project.query.all()
@@ -152,16 +159,18 @@ class Project(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Project #{self.id}, Project Title: {self.title}, Project Description: {self.description}, Project Status: {self.status}, Project Start Date: {self.start_date}, Project End Date: {self.end_date}, Project team: {self.team.name}>'
 
+###############################################################
+
 class Task(db.Model, SerializerMixin): 
     __tablename__ = 'tasks'
 
-    serialize_rules = ('-user.tasks', '-project.tasks', '-created_at', '-updated_at',)
+    serialize_rules = ('-user.tasks', '-project.tasks', '-created_at', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, db.CheckConstraint('len(description) <= 250', name='max_task_description_length'))
     status = db.Column(db.String, nullable=False)
-    due_date = db.Column(db.DateTime, nullable=False)
+    due_date = db.Column(db.String, nullable=False)
     priority = db.Column(db.Integer, db.CheckConstraint('priority > 0', name='positive_priority'), nullable=False)
     
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -231,11 +240,12 @@ class Task(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Task #{self.id}, Task Title: {self.title}, Task Status: {self.status}, Task Assigned to: {self.assigned_to_user_id.username}, Task Project: {self.project.title}, Task Priority: {self.priority}, Task Due Date: {self.due_date}>'
 
+###############################################################
 
 class File(db.Model, SerializerMixin):
     __tablename__ = 'files'
 
-    serialize_rules = ('-user.files', '-project.files', '-updated_at',)
+    serialize_rules = ('-user.files', '-project.files', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String, nullable=False)
@@ -277,7 +287,7 @@ class File(db.Model, SerializerMixin):
     def validate_file_size(self, key, size):
         if not size:
             raise ValueError("File must have a File Size.")
-        elif int(size) <= 1:
+        elif int(size) < 1:
             raise ValueError("File Size cannot be 0.")
         return size
         
@@ -304,10 +314,12 @@ class File(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<File #{self.id}, File Name: {self.filename}, File Type: {self.file_type}, File Size: {self.size}, File Uploaded By: {self.uploaded_by_user_id.username}, File Project: {self.project.title}, File Date Uploaded: {self.date_uploaded}>'
 
+###############################################################
+
 class Team(db.Model, SerializerMixin):
     __tablename__ = 'teams'
 
-    serialize_rules = ('-user.teams', '-project.teams', '-updated_at',)
+    serialize_rules = ('-user.teams', '-project.teams', '-updated_at','-user',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -351,15 +363,17 @@ class Team(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Team #{self.id}, Team Name: {self.name}, Team Created By: {self.created_by_user_id.username}, Team Description: {self.description}, Team Date Created: {self.created_at}>'
 
+###############################################################
+
 class Calendar(db.Model, SerializerMixin):
     __tablename__ = 'calendars'
 
-    serialize_rules = ('-user.calendars', '-created_at', '-updated_at',)
+    serialize_rules = ('-user.calendars', '-created_at', '-updated_at', '-user',)
 
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String, nullable=False)
     event_description = db.Column(db.String, db.CheckConstraint('len(event_description) <= 250', name='max_event_description_length'))
-    event_date = db.Column(db.DateTime, nullable=False)
+    event_date = db.Column(db.String, nullable=False)
      
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now()) 
@@ -403,10 +417,15 @@ class Calendar(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Calendar #{self.id}, Event Name: {self.event_name}, Event Description: {self.event_description}, Event Date: {self.event_date}, Created By: {self.created_by_user_id.username}>'
 
+###############################################################
+
 class Chat_Message(db.Model, SerializerMixin):
     __tablename__ = 'chat_messages'
 
     serialize_rules = ('-user.chat_messages', '-updated_at',)
+    ## Potentially alternate version if needed ## 
+        ## Would also need to switch to the alternate sent_messages and received_messages up in User!
+    # serialize_rules = ('-updated_at','-user1','-user2',)
 
     id = db.Column(db.Integer, primary_key=True)
     message_text = db.Column(db.String, db.CheckConstraint('len(message_text) <= 250', name='max_chat_message_length'))
@@ -447,3 +466,5 @@ class Chat_Message(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Chat_Message #{self.id}, Message Text: {self.message_text}, Message Date: {self.message_date}, Sender: {self.sender_user_id.username}, Receiver: {self.receiver_user_id.username}>'
+    
+###############################################################

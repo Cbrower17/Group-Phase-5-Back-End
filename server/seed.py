@@ -166,7 +166,7 @@ with app.app_context():
                 filename=f"{fake.word()}",
                 file_type=rc(file_types),
                 size=randint(1,500),
-                uploaded_by_user_id=user,
+                uploaded_by_user_id=user.id,
                 project=rc(projects))
             files.append(file)
     print('Adding File objects...')
@@ -186,7 +186,7 @@ with app.app_context():
                 status="In Progress",
                 due_date=f"{fake.date()}",
                 priority=randint(1,10),
-                assigned_to_user_id=user,
+                assigned_to_user_id=user.id,
                 project=rc(projects)
                 )
             tasks.append(task)
@@ -223,8 +223,8 @@ with app.app_context():
         for n in range(randint(1, 10)):
             chat_message = Chat_Message(
                 message_text=f"{fake.sentence()}",
-                sender_user_id=user,
-                receiver_user_id=rc(users))
+                sender_user_id=user.id,
+                receiver_user_id=rc(users).id)
             chat_messages.append(chat_message)
     print('Adding Chat Message objects...')
     db.session.add_all(chat_messages)
